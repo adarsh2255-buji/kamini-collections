@@ -35,26 +35,66 @@
   --font-sans: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
 }
 
-/* Custom scrollbar for boutique elegance */
-::-webkit-scrollbar {
-  width: 7px;
+/* ============================================================================== */
+/* SCROLLBAR CONFIGURATION: REMOVE SCROLLBAR ON MOBILE VIEW ACROSS ALL PAGES      */
+/* ============================================================================== */
+
+/* Mobile view: completely hide scrollbar while preserving natural touch scrolling */
+@media (max-width: 1024px), (pointer: coarse) {
+  html,
+  body {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
 }
-::-webkit-scrollbar-track {
-  background: #FAF7F0;
+
+/* Desktop screens: subtle boutique gold scrollbar */
+@media (min-width: 1025px) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FAF7F0;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D8CCA6;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B99A5B;
+  }
 }
-::-webkit-scrollbar-thumb {
-  background: #D8CCA6;
-  border-radius: 4px;
+
+/* Global utility to hide scrollbars on specific scrollable containers */
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #B99A5B;
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Smooth transitions */
