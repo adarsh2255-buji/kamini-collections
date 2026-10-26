@@ -6,6 +6,7 @@ import { AnnouncementBar } from '@/components/layout/announcement-bar';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { formatPrice } from '@/lib/pricing';
+import { getWhatsAppLink } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'Order Confirmed',
@@ -25,7 +26,6 @@ export default async function OrderSuccessPage({
 
   const isCod = method === 'cod';
   const isPaidOnline = method === 'razorpay' && Boolean(paymentId);
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#26221F]">
@@ -133,9 +133,9 @@ export default async function OrderSuccessPage({
           <div className="mt-10 pt-6 border-t border-[#E6DCD1] text-xs text-[#645E59] flex flex-col sm:flex-row items-center justify-center gap-4">
             <span>Need assistance with this order?</span>
             <a
-              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+              href={getWhatsAppLink(
                 `Hello Kamini Collections, I placed order ${orderNumber} and would like an update.`
-              )}`}
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-[#128C7E] font-semibold hover:underline"

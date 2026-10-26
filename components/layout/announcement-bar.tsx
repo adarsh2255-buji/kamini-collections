@@ -3,9 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { Sparkles, Phone, ShieldCheck } from 'lucide-react';
+import { getWhatsAppLink } from '@/lib/site-config';
 
 export function AnnouncementBar() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
+  const whatsappUrl = getWhatsAppLink(
+    'Hello Kamini Collections, I would like to inquire about your saree collections.'
+  );
 
   return (
     <div className="bg-[#702638] text-[#FAF7F0] text-xs font-medium py-2 px-4 transition-colors">
@@ -27,9 +30,7 @@ export function AnnouncementBar() {
           </Link>
           <span className="text-[#91753D]">|</span>
           <a
-            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-              'Hello Kamini Collections, I would like to inquire about your saree collections.'
-            )}`}
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors flex items-center gap-1"

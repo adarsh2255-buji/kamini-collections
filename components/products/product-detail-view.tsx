@@ -17,6 +17,7 @@ import {
 import { Product } from '@/types';
 import { formatPrice, calculateDiscountPercentage } from '@/lib/pricing';
 import { useCart } from '@/context/cart-context';
+import { getWhatsAppLink } from '@/lib/site-config';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -51,10 +52,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
     router.push('/checkout');
   };
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
-  const whatsappInquiryUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+  const whatsappInquiryUrl = getWhatsAppLink(
     `Hello Kamini Collections, I am interested in purchasing "${product.name}" (SKU: ${product.sku}, Price: ${formatPrice(product.price_paise)}). Is it currently available for immediate dispatch?`
-  )}`;
+  );
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">

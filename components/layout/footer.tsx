@@ -1,9 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Truck, RotateCcw, Award } from 'lucide-react';
+import { STORE_CONFIG, getWhatsAppLink } from '@/lib/site-config';
 
 export function Footer() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
+  const whatsappUrl = getWhatsAppLink('Hello Kamini Collections, I have an inquiry about an order or collection.');
 
   return (
     <footer className="bg-[#26221F] text-[#FAF7F0] pt-16 pb-12 border-t-2 border-[#B99A5B]/30 mt-auto">
@@ -71,12 +72,12 @@ export function Footer() {
             <div className="pt-2 text-xs text-[#DFC89B]">
               <span>Boutique Care: </span>
               <a
-                href={`https://wa.me/${whatsappNumber}`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline font-medium text-white"
               >
-                +91 98765 43210 (WhatsApp)
+                {STORE_CONFIG.displayPhone} (WhatsApp)
               </a>
             </div>
           </div>

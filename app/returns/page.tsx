@@ -4,6 +4,7 @@ import { AnnouncementBar } from '@/components/layout/announcement-bar';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { WhatsAppButton } from '@/components/layout/whatsapp-button';
+import { getWhatsAppLink } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'Returns & Exchange Policy',
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 };
 
 export default function ReturnsPolicyPage() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
+  const whatsappUrl = getWhatsAppLink(
+    'Hello Kamini Collections, I would like to request an exchange/return inquiry for my order.'
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#26221F]">
@@ -65,7 +68,7 @@ export default function ReturnsPolicyPage() {
             </h2>
             <p>
               To initiate a return or exchange request, please message our care team at{' '}
-              <a href={`https://wa.me/${whatsappNumber}`} className="text-[#702638] font-medium underline">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-[#702638] font-medium underline">
                 WhatsApp Care
               </a>{' '}
               along with your Order Reference and a brief photo/video of the issue. Our team will arrange a reverse pickup where serviceable.

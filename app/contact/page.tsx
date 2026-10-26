@@ -7,14 +7,18 @@ import { Footer } from '@/components/layout/footer';
 import { WhatsAppButton } from '@/components/layout/whatsapp-button';
 import { ContactForm } from '@/components/contact/contact-form';
 
+import { STORE_CONFIG, getWhatsAppLink } from '@/lib/site-config';
+
 export const metadata: Metadata = {
   title: 'Contact Boutique',
   description: 'Connect with Kamini Collections customer care, bridal consultations, and WhatsApp styling support.',
 };
 
 export default function ContactPage() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'care@kaminicollections.com';
+  const whatsappUrl = getWhatsAppLink(
+    'Hello Kamini Collections, I would like to inquire about your saree collections and bridal concierge.'
+  );
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || STORE_CONFIG.email;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#26221F]">
@@ -48,14 +52,14 @@ export default function ContactPage() {
                 <div>
                   <span className="block font-semibold text-[#26221F]">WhatsApp Concierge</span>
                   <a
-                    href={`https://wa.me/${whatsappNumber}`}
+                    href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#128C7E] font-medium hover:underline"
                   >
-                    +91 {whatsappNumber.slice(2)} (Instant Video/Chat)
+                    {STORE_CONFIG.displayPhone} (Instant Video/Chat)
                   </a>
-                  <p className="text-[11px] text-[#645E59] mt-0.5">Mon - Sat: 10:00 AM - 8:00 PM IST</p>
+                  <p className="text-[11px] text-[#645E59] mt-0.5">{STORE_CONFIG.operatingHours}</p>
                 </div>
               </div>
 
