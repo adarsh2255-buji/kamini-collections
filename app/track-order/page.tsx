@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Search, ShieldCheck, Truck, PackageCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, Truck, AlertCircle, Loader2 } from 'lucide-react';
 import { AnnouncementBar } from '@/components/layout/announcement-bar';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';

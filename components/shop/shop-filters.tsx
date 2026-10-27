@@ -55,7 +55,7 @@ export function ShopFiltersBar({
     activeCategory || activeFabric || activeColor || activeOccasion || activeSearch || inStockOnly
   );
 
-  const FilterContent = () => (
+  const renderFilterContent = () => (
     <div className="space-y-6">
       {/* Category Filter */}
       <div>
@@ -122,6 +122,31 @@ export function ShopFiltersBar({
           ))}
         </div>
       </div>
+
+      {/* Color Filter */}
+      {availableColors.length > 0 && (
+        <div>
+          <h4 className="font-serif text-sm font-semibold text-[#26221F] mb-3 uppercase tracking-wider">
+            Color Palette
+          </h4>
+          <div className="flex flex-wrap gap-1.5">
+            {availableColors.map((col) => (
+              <button
+                key={col}
+                type="button"
+                onClick={() => updateParam('color', activeColor === col ? null : col)}
+                className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                  activeColor === col
+                    ? 'bg-[#702638] text-white border-[#702638]'
+                    : 'bg-white text-[#26221F] border-[#E6DCD1] hover:border-[#B99A5B]'
+                }`}
+              >
+                {col}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Occasion Filter */}
       <div>
@@ -234,7 +259,7 @@ export function ShopFiltersBar({
       {/* Desktop Sidebar Container (Used on shop page) */}
       <aside className="hidden lg:block w-64 shrink-0 pr-8">
         <div className="bg-white p-5 border border-[#E6DCD1] rounded-xs sticky top-28">
-          <FilterContent />
+          {renderFilterContent()}
         </div>
       </aside>
 
@@ -259,7 +284,7 @@ export function ShopFiltersBar({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <FilterContent />
+              {renderFilterContent()}
             </div>
 
             <div className="pt-6 border-t border-[#E6DCD1] mt-6">

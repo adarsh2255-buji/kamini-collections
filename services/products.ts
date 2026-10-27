@@ -6,8 +6,7 @@
 
 import { Product, Category, ShopFilters } from '@/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getAdminClient } from '@/lib/supabase/admin';
+import { createPublicSupabaseClient } from '@/lib/supabase/server';
 import { INITIAL_CATEGORIES, INITIAL_PRODUCTS } from '@/lib/mock-data';
 
 /**
@@ -19,7 +18,7 @@ export async function getCategories(): Promise<Category[]> {
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return INITIAL_CATEGORIES;
 
     const { data, error } = await supabase
@@ -28,11 +27,11 @@ export async function getCategories(): Promise<Category[]> {
       .eq('is_active', true)
       .order('display_order', { ascending: true });
 
-    if (error || !data || data.length === 0) {
+    if (error) {
       return INITIAL_CATEGORIES;
     }
 
-    return data as Category[];
+    return (data || []) as Category[];
   } catch (err) {
     console.error('Error fetching categories:', err);
     return INITIAL_CATEGORIES;
@@ -48,7 +47,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return INITIAL_CATEGORIES.find((c) => c.slug === slug) || null;
 
     const { data, error } = await supabase
@@ -148,7 +147,7 @@ export async function getProducts(filters: ShopFilters = {}): Promise<{ products
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return { products: INITIAL_PRODUCTS, total: INITIAL_PRODUCTS.length };
 
     let query = supabase
@@ -213,11 +212,11 @@ export async function getProducts(filters: ShopFilters = {}): Promise<{ products
 
     const { data, count, error } = await query;
 
-    if (error || !data || data.length === 0) {
+    if (error) {
       return { products: INITIAL_PRODUCTS, total: INITIAL_PRODUCTS.length };
     }
 
-    return { products: data as Product[], total: count || data.length };
+    return { products: (data || []) as Product[], total: count != null ? count : (data?.length || 0) };
   } catch (err) {
     console.error('Error fetching products:', err);
     return { products: INITIAL_PRODUCTS, total: INITIAL_PRODUCTS.length };
@@ -241,7 +240,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return INITIAL_PRODUCTS.find((p) => p.slug === slug) || null;
 
     const { data, error } = await supabase

@@ -4,7 +4,6 @@ import {
   ShoppingBag,
   TrendingUp,
   Clock,
-  CheckCircle2,
   AlertTriangle,
   ArrowRight,
   Package,

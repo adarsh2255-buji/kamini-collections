@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { CheckCircle2, Clock, ArrowRight, ShieldCheck, Phone, MessageCircle } from 'lucide-react';
+import { CheckCircle2, Clock, ArrowRight, ShieldCheck, MessageCircle } from 'lucide-react';
 import { AnnouncementBar } from '@/components/layout/announcement-bar';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';

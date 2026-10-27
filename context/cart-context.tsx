@@ -28,19 +28,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Hydrate from localStorage on client mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(CART_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setItems(parsed);
+    const handleHydrate = () => {
+      try {
+        const stored = localStorage.getItem(CART_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setItems(parsed);
+          }
         }
+      } catch (err) {
+        console.warn('Failed to parse stored cart:', err);
+      } finally {
+        setIsHydrated(true);
       }
-    } catch (err) {
-      console.warn('Failed to parse stored cart:', err);
-    } finally {
-      setIsHydrated(true);
-    }
+    };
+
+    queueMicrotask(handleHydrate);
   }, []);
 
   // Save to localStorage on change

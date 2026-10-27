@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Save, Truck, ShieldCheck, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle2, Loader2 } from 'lucide-react';
 import { Order } from '@/types';
 import { formatPrice } from '@/lib/pricing';
 

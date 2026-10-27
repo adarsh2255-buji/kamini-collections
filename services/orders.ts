@@ -3,8 +3,7 @@
 // Server-side order lifecycle, atomic checkout, inventory deduction, and tracking
 // ==============================================================================
 
-import { Order, OrderItem, PaymentMethod, PaymentStatus, OrderStatus, ShippingAddress } from '@/types';
-import { isSupabaseAdminConfigured } from '@/lib/supabase/config';
+import { Order, PaymentMethod, PaymentStatus, OrderStatus, ShippingAddress } from '@/types';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { computeOrderTotals } from '@/lib/pricing';
 import { getRazorpayClient } from '@/lib/razorpay';
@@ -43,7 +42,7 @@ export async function processCheckout(payload: CheckoutPayload): Promise<{
   const orderNumber = generateOrderNumber();
 
   // 1. Fetch products & validate
-  let resolvedItems: {
+  const resolvedItems: {
     product_id: string;
     product_name: string;
     sku: string;
@@ -166,12 +165,29 @@ export async function processCheckout(payload: CheckoutPayload): Promise<{
       console.error('Failed to insert order items:', itemsErr);
     }
 
-    // Safely decrement inventory atomically
+    // Safely decrement inventory atomically with concurrency check
     for (const item of resolvedItems) {
-      await adminClient.rpc('decrement_product_stock', {
+      const { data: success, error: decErr } = await adminClient.rpc('decrement_product_stock', {
         p_product_id: item.product_id,
         p_quantity: item.quantity,
       });
+
+      if (decErr || success === false) {
+        // Rollback any inventory decremented so far for this order
+        await adminClient.rpc('restore_order_inventory', { p_order_id: createdOrder.id });
+        await adminClient
+          .from('orders')
+          .update({
+            order_status: 'cancelled',
+            notes: 'Cancelled due to concurrent inventory reservation collision',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', createdOrder.id);
+
+        throw new Error(
+          `We apologize, but "${item.product_name}" was just reserved by another customer. Please adjust your bag.`
+        );
+      }
     }
   } else {
     // Mock order creation for preview/unconnected state
