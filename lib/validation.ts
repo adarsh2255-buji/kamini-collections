@@ -10,6 +10,9 @@ export const indianPhoneRegex = /^[6-9]\d{9}$/;
 // Indian Postal PIN Code: 6 digits
 export const indianPincodeRegex = /^[1-9][0-9]{5}$/;
 
+// Standard 36-character hyphenated UUID regex (supports both RFC-4122 and database-seeded UUIDs)
+export const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
 export const indianStates = [
   'Andhra Pradesh',
   'Arunachal Pradesh',
@@ -93,11 +96,13 @@ export const productFormSchema = z.object({
   category_id: z
     .string()
     .trim()
-    .uuid('Please select a valid category')
+    .refine((val) => !val || uuidRegex.test(val), {
+      message: 'Please select a valid category',
+    })
     .nullable()
     .optional()
     .or(z.literal(''))
-    .transform((val) => (val === '' ? null : val)),
+    .transform((val) => (!val || val.trim() === '' ? null : val.trim())),
   description: z.string().trim().min(10, 'Description must be at least 10 characters'),
   fabric: z.string().trim().max(100).optional().nullable(),
   color: z.string().trim().max(100).optional().nullable(),
