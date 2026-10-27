@@ -75,9 +75,10 @@ export default function NewProductPage() {
       return;
     }
 
-    const compareNum = formData.compareAtPriceRupees
-      ? parseFloat(formData.compareAtPriceRupees)
-      : null;
+    const compareNum =
+      formData.compareAtPriceRupees && !isNaN(parseFloat(formData.compareAtPriceRupees))
+        ? parseFloat(formData.compareAtPriceRupees)
+        : null;
 
     const stockNum = parseInt(formData.stockQuantity, 10);
     if (isNaN(stockNum) || stockNum < 0) {
@@ -95,7 +96,7 @@ export default function NewProductPage() {
           name: formData.name.trim(),
           slug: formData.slug.trim(),
           sku: formData.sku.trim(),
-          category_id: formData.categoryId || undefined,
+          category_id: formData.categoryId ? formData.categoryId.trim() : null,
           description: formData.description.trim(),
           fabric: formData.fabric.trim() || undefined,
           color: formData.color.trim() || undefined,
@@ -108,13 +109,22 @@ export default function NewProductPage() {
           stock_quantity: stockNum,
           is_active: formData.isActive,
           is_featured: formData.isFeatured,
-          image_urls: formData.imageUrl ? [formData.imageUrl.trim()] : ['/saree.jfif'],
+          image_urls: formData.imageUrl.trim() ? [formData.imageUrl.trim()] : ['/saree.jfif'],
         }),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to save saree');
+        let errorMsg = data.error || 'Failed to save saree';
+        if (data.details) {
+          const detailMessages = Object.entries(data.details)
+            .map(([field, errs]) => `${field.replace(/_/g, ' ')}: ${(errs as string[]).join(', ')}`)
+            .join(' | ');
+          if (detailMessages) {
+            errorMsg = `${errorMsg}: ${detailMessages}`;
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       alert('Saree created successfully!');

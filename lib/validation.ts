@@ -88,9 +88,16 @@ export const trackOrderSchema = z.object({
 
 export const productFormSchema = z.object({
   name: z.string().trim().min(3, 'Product name is required').max(255),
-  slug: z.string().trim().min(3).max(255).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
+  slug: z.string().trim().min(2, 'Slug must be at least 2 characters').max(255).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
   sku: z.string().trim().min(3, 'SKU is required').max(50),
-  category_id: z.string().uuid('Please select a valid category').nullable().optional(),
+  category_id: z
+    .string()
+    .trim()
+    .uuid('Please select a valid category')
+    .nullable()
+    .optional()
+    .or(z.literal(''))
+    .transform((val) => (val === '' ? null : val)),
   description: z.string().trim().min(10, 'Description must be at least 10 characters'),
   fabric: z.string().trim().max(100).optional().nullable(),
   color: z.string().trim().max(100).optional().nullable(),
@@ -103,7 +110,7 @@ export const productFormSchema = z.object({
   stock_quantity: z.number().int().min(0, 'Stock cannot be negative'),
   is_active: z.boolean().default(true),
   is_featured: z.boolean().default(false),
-  image_urls: z.array(z.string().url('Invalid image URL')).default([]),
+  image_urls: z.array(z.string().trim().min(1, 'Image path or URL is required')).default([]),
 });
 
 export const categoryFormSchema = z.object({
