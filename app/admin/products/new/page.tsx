@@ -20,7 +20,7 @@ import { Category } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 
 const PRESET_ASSETS = [
-  { label: 'Banarasi Kadwa', url: '/saree.jfif' },
+  { label: 'Banarasi Kadwa', url: '/saree.jpg' },
   { label: 'Kanchipuram Pattu', url: '/kanchipuram.jpg' },
   { label: 'Organza Floral', url: '/organza.jpg' },
   { label: 'Jamdani Weave', url: '/jamdani.jpg' },
@@ -35,7 +35,7 @@ export default function NewProductPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Images state (first element is always the primary cover image)
-  const [images, setImages] = useState<string[]>(['/saree.jfif']);
+  const [images, setImages] = useState<string[]>(['/saree.jpg']);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -135,7 +135,7 @@ export default function NewProductPage() {
 
       setImages((prev) => {
         // If only default preset existed, replace it with actual uploaded files
-        if (prev.length === 1 && prev[0] === '/saree.jfif') {
+        if (prev.length === 1 && prev[0] === '/saree.jpg') {
           return uploadedUrls;
         }
         return [...prev, ...uploadedUrls];
@@ -167,7 +167,7 @@ export default function NewProductPage() {
   const handleAddPreset = (url: string) => {
     setImages((prev) => {
       if (prev.includes(url)) return prev;
-      if (prev.length === 1 && prev[0] === '/saree.jfif' && url !== '/saree.jfif') {
+      if (prev.length === 1 && prev[0] === '/saree.jpg' && url !== '/saree.jpg') {
         return [url];
       }
       return [...prev, url];
@@ -184,7 +184,7 @@ export default function NewProductPage() {
 
     setImages((prev) => {
       if (prev.includes(trimmed)) return prev;
-      if (prev.length === 1 && prev[0] === '/saree.jfif') {
+      if (prev.length === 1 && prev[0] === '/saree.jpg') {
         return [trimmed];
       }
       return [...prev, trimmed];

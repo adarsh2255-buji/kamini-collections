@@ -61,10 +61,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addToCart = (product: Product, quantity = 1) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === product.id);
-      const primaryImage =
+      const primaryImage = (
         product.images?.find((img) => img.is_primary)?.image_url ||
         product.images?.[0]?.image_url ||
-        '/saree.jfif';
+        '/saree.jpg'
+      ).replace(/\.jfif$/i, '.jpg');
 
       if (existing) {
         const newQty = Math.min(existing.quantity + quantity, product.stock_quantity);

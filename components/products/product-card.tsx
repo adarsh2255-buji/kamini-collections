@@ -14,10 +14,11 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
-  const primaryImage =
+  const rawImage =
     product.images?.find((img) => img.is_primary)?.image_url ||
     product.images?.[0]?.image_url ||
-    '/saree.jfif';
+    '/saree.jpg';
+  const primaryImage = rawImage.replace(/\.jfif$/i, '.jpg');
 
   const discount = calculateDiscountPercentage(product.price_paise, product.compare_at_price_paise);
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 5;

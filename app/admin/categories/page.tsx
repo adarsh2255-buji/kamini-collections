@@ -38,7 +38,7 @@ export default async function AdminCategoriesPage() {
           >
             <div className="relative aspect-[16/10] bg-[#F5EFEB]">
               <Image
-                src={cat.image_url || '/saree.jfif'}
+                src={(cat.image_url || '/saree.jpg').replace(/\.jfif$/i, '.jpg')}
                 alt={cat.name}
                 fill
                 className="object-cover"

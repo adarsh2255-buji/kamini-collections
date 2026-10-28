@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         name: parsed.data.name,
         slug: parsed.data.slug,
         description: parsed.data.description || null,
-        image_url: parsed.data.image_url || '/saree.jfif',
+        image_url: (parsed.data.image_url || '/saree.jpg').replace(/\.jfif$/i, '.jpg'),
         is_active: parsed.data.is_active,
         display_order: parsed.data.display_order,
       })

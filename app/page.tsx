@@ -131,7 +131,7 @@ export default async function HomePage() {
               >
                 <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F5EFEB]">
                   <Image
-                    src={category.image_url || '/saree.jfif'}
+                    src={(category.image_url || '/saree.jpg').replace(/\.jfif$/i, '.jpg')}
                     alt={category.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

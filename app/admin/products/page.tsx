@@ -57,10 +57,11 @@ export default async function AdminProductsPage() {
             </thead>
             <tbody className="divide-y divide-[#E6DCD1]">
               {products.map((product) => {
-                const img =
+                const rawImg =
                   product.images?.find((i) => i.is_primary)?.image_url ||
                   product.images?.[0]?.image_url ||
-                  '/saree.jfif';
+                  '/saree.jpg';
+                const img = rawImg.replace(/\.jfif$/i, '.jpg');
 
                 const isLow = product.stock_quantity <= 3;
                 const isOut = product.stock_quantity === 0;

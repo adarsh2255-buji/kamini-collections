@@ -35,7 +35,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center mb-16">
           <div className="md:col-span-6 relative aspect-[3/4] rounded-xs overflow-hidden shadow-lg border border-[#E6DCD1]">
             <Image
-              src="/saree.jfif"
+              src="/saree.jpg"
               alt="Kamini Collections Handloom Heritage"
               fill
               className="object-cover"

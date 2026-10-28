@@ -73,10 +73,11 @@ export async function processCheckout(payload: CheckoutPayload): Promise<{
         throw new Error(`Insufficient stock for "${prod.name}". Only ${prod.stock_quantity} remaining.`);
       }
 
-      const primaryImg =
+      const primaryImg = (
         prod.images?.find((img: { is_primary: boolean }) => img.is_primary)?.image_url ||
         prod.images?.[0]?.image_url ||
-        '/saree.jfif';
+        '/saree.jpg'
+      ).replace(/\.jfif$/i, '.jpg');
 
       resolvedItems.push({
         product_id: prod.id,
@@ -103,7 +104,7 @@ export async function processCheckout(payload: CheckoutPayload): Promise<{
         unit_price_paise: prod.price_paise,
         quantity: item.quantity,
         line_total_paise: prod.price_paise * item.quantity,
-        image_url: prod.images?.[0]?.image_url || '/saree.jfif',
+        image_url: (prod.images?.[0]?.image_url || '/saree.jpg').replace(/\.jfif$/i, '.jpg'),
       });
     }
   }

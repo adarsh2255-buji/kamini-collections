@@ -247,7 +247,7 @@ export default function TrackOrderPage() {
                     <div key={idx} className="py-3 flex items-center gap-4">
                       <div className="relative w-12 h-16 shrink-0 bg-[#F5EFEB] rounded-xs overflow-hidden border border-[#E6DCD1]">
                         <Image
-                          src={item.image_url || '/saree.jfif'}
+                          src={(item.image_url || '/saree.jpg').replace(/\.jfif$/i, '.jpg')}
                           alt={item.product_name}
                           fill
                           className="object-cover"

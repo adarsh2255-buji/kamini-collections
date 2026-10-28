@@ -14,7 +14,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     slug: 'banarasi-silk',
     description:
       'Pure handwoven Banarasi sarees featuring intricate zari work, royal brocades, and timeless royal motifs from Varanasi.',
-    image_url: '/saree.jfif',
+    image_url: '/saree.jpg',
     is_active: true,
     display_order: 1,
     created_at: SEED_DATE,
@@ -89,7 +89,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       {
         id: 'img-1',
         product_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-        image_url: '/saree.jfif',
+        image_url: '/saree.jpg',
         alt_text: 'Royal Crimson Kadwa Banarasi Silk Saree Front Drape',
         sort_order: 1,
         is_primary: true,
@@ -225,7 +225,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       {
         id: 'img-5',
         product_id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-        image_url: '/saree.jfif',
+        image_url: '/saree.jpg',
         alt_text: 'Vintage Marigold Banarasi Meenakari Silk Saree',
         sort_order: 1,
         is_primary: true,

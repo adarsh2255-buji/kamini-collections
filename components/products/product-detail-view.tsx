@@ -30,9 +30,13 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAddedNotice, setIsAddedNotice] = useState(false);
 
-  const images = product.images && product.images.length > 0
+  const images = (product.images && product.images.length > 0
     ? product.images
-    : [{ id: 'default', product_id: product.id, image_url: '/saree.jfif', alt_text: product.name, sort_order: 1, is_primary: true, created_at: '' }];
+    : [{ id: 'default', product_id: product.id, image_url: '/saree.jpg', alt_text: product.name, sort_order: 1, is_primary: true, created_at: '' }]
+  ).map((img) => ({
+    ...img,
+    image_url: (img.image_url || '/saree.jpg').replace(/\.jfif$/i, '.jpg'),
+  }));
 
   const activeImage = images[selectedImageIndex] || images[0];
   const isOutOfStock = product.stock_quantity <= 0;

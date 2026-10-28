@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/saree.jfif',
+        destination: '/saree.jpg',
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {
