@@ -32,14 +32,24 @@ export async function POST(req: NextRequest) {
     // 2. Update order and payment records in Supabase
     const adminClient = getAdminClient();
     if (adminClient) {
+      const { data: currentOrder } = await adminClient
+        .from('orders')
+        .select('order_status')
+        .eq('id', internal_order_id)
+        .single();
+
+      const orderUpdates: Record<string, unknown> = {
+        payment_status: 'captured',
+        updated_at: new Date().toISOString(),
+      };
+      if (currentOrder && currentOrder.order_status === 'placed') {
+        orderUpdates.order_status = 'processing';
+      }
+
       // Update order status
       await adminClient
         .from('orders')
-        .update({
-          payment_status: 'captured',
-          order_status: 'processing',
-          updated_at: new Date().toISOString(),
-        })
+        .update(orderUpdates)
         .eq('id', internal_order_id);
 
       // Update payment record

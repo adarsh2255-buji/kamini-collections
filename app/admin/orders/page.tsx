@@ -2,12 +2,19 @@ import React from 'react';
 import Link from 'next/link';
 import { getAdminOrders } from '@/services/orders';
 import { formatPrice } from '@/lib/pricing';
+import { verifyAdminSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function AdminOrdersPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const auth = await verifyAdminSession();
+  if (!auth.authorized) {
+    redirect('/admin/login');
+  }
+
   const resolvedParams = await searchParams;
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : undefined;
   const orderStatus = typeof resolvedParams.status === 'string' ? resolvedParams.status : undefined;

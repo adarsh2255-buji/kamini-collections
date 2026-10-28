@@ -4,12 +4,19 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getProducts } from '@/services/products';
 import { paiseToRupees } from '@/lib/pricing';
+import { verifyAdminSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
+  const auth = await verifyAdminSession();
+  if (!auth.authorized) {
+    redirect('/admin/login');
+  }
+
   const { id } = await params;
   const { products } = await getProducts();
   const product = products.find((p) => p.id === id);

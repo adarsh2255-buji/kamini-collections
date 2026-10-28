@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 3. Process Event Types
+    // 3. Process Event Types with State-Machine Integrity
     switch (eventType) {
       case 'payment.captured': {
         const payment = event.payload?.payment?.entity;
@@ -61,19 +61,32 @@ export async function POST(req: NextRequest) {
           // Find internal order associated with this Razorpay order
           const { data: paymentRecord } = await adminClient
             .from('payments')
-            .select('order_id')
+            .select('order_id, status')
             .eq('provider_order_id', razorpayOrderId)
             .single();
 
           if (paymentRecord?.order_id) {
+            const { data: currentOrder } = await adminClient
+              .from('orders')
+              .select('order_status, payment_status')
+              .eq('id', paymentRecord.order_id)
+              .single();
+
+            const orderUpdates: Record<string, unknown> = {
+              payment_status: 'captured',
+              updated_at: new Date().toISOString(),
+            };
+
+            // Only advance order_status to 'processing' if still 'placed'
+            // Do NOT regress if order has already progressed to 'shipped' or 'delivered'
+            if (currentOrder && currentOrder.order_status === 'placed') {
+              orderUpdates.order_status = 'processing';
+            }
+
             await Promise.all([
               adminClient
                 .from('orders')
-                .update({
-                  payment_status: 'captured',
-                  order_status: 'processing',
-                  updated_at: new Date().toISOString(),
-                })
+                .update(orderUpdates)
                 .eq('id', paymentRecord.order_id),
 
               adminClient
@@ -95,6 +108,20 @@ export async function POST(req: NextRequest) {
         const razorpayOrderId = payment?.order_id;
 
         if (razorpayOrderId) {
+          const { data: currentPayment } = await adminClient
+            .from('payments')
+            .select('status, order_id')
+            .eq('provider_order_id', razorpayOrderId)
+            .single();
+
+          // Idempotency & out-of-order check: Never regress a captured or refunded payment
+          if (currentPayment && (currentPayment.status === 'captured' || currentPayment.status === 'refunded')) {
+            console.log(
+              `Ignoring out-of-order payment.failed event for provider_order ${razorpayOrderId} (current status: ${currentPayment.status})`
+            );
+            break;
+          }
+
           await adminClient
             .from('payments')
             .update({
@@ -102,6 +129,24 @@ export async function POST(req: NextRequest) {
               updated_at: new Date().toISOString(),
             })
             .eq('provider_order_id', razorpayOrderId);
+
+          if (currentPayment?.order_id) {
+            const { data: currentOrder } = await adminClient
+              .from('orders')
+              .select('payment_status, order_status')
+              .eq('id', currentPayment.order_id)
+              .single();
+
+            if (currentOrder && currentOrder.payment_status === 'pending') {
+              await adminClient
+                .from('orders')
+                .update({
+                  payment_status: 'failed',
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('id', currentPayment.order_id);
+            }
+          }
         }
         break;
       }

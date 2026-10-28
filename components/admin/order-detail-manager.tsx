@@ -14,6 +14,7 @@ interface OrderDetailManagerProps {
 export function OrderDetailManager({ initialOrder }: OrderDetailManagerProps) {
   const [order, setOrder] = useState<Order>(initialOrder);
   const [orderStatus, setOrderStatus] = useState(initialOrder.order_status);
+  const [paymentStatus, setPaymentStatus] = useState(initialOrder.payment_status);
   const [carrier, setCarrier] = useState(initialOrder.tracking_carrier || 'Blue Dart Express');
   const [trackingNumber, setTrackingNumber] = useState(initialOrder.tracking_number || '');
   const [adminNotes, setAdminNotes] = useState(initialOrder.notes || '');
@@ -31,6 +32,7 @@ export function OrderDetailManager({ initialOrder }: OrderDetailManagerProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           order_status: orderStatus,
+          payment_status: paymentStatus,
           tracking_carrier: carrier.trim() || undefined,
           tracking_number: trackingNumber.trim() || undefined,
           notes: adminNotes.trim() || undefined,
@@ -215,6 +217,22 @@ export function OrderDetailManager({ initialOrder }: OrderDetailManagerProps) {
                 <option value="shipped">Shipped (In Transit with Courier)</option>
                 <option value="delivered">Delivered to Customer</option>
                 <option value="cancelled">Cancelled (Restores Inventory)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#26221F] mb-1">
+                Payment Status
+              </label>
+              <select
+                value={paymentStatus}
+                onChange={(e) => setPaymentStatus(e.target.value as Order['payment_status'])}
+                className="w-full bg-[#FAF7F0] border border-[#E6DCD1] rounded-xs py-2 px-3 text-sm focus:outline-none focus:border-[#702638]"
+              >
+                <option value="pending">Pending (Unpaid / COD Awaiting Delivery)</option>
+                <option value="captured">Captured (Paid / Cash Collected)</option>
+                <option value="refunded">Refunded</option>
+                <option value="failed">Failed</option>
               </select>
             </div>
 

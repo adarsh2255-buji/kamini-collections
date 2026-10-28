@@ -4,8 +4,15 @@ import Image from 'next/image';
 import { Plus, Edit, Sparkles, AlertCircle } from 'lucide-react';
 import { getProducts } from '@/services/products';
 import { formatPrice } from '@/lib/pricing';
+import { verifyAdminSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function AdminProductsPage() {
+  const auth = await verifyAdminSession();
+  if (!auth.authorized) {
+    redirect('/admin/login');
+  }
+
   const { products, total } = await getProducts();
 
   return (

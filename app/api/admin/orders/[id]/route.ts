@@ -1,11 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { updateOrderStatusSchema } from '@/lib/validation';
+import { verifyAdminSession } from '@/lib/auth';
 
+/**
+ * GET /api/admin/orders/[id]
+ * Fetch single order with items and payment history.
+ * Protected: requires authenticated user with role === 'admin'.
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await verifyAdminSession(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
+  const { id } = await params;
+  const adminClient = getAdminClient();
+  if (!adminClient) {
+    return NextResponse.json({ success: false, error: 'Database service is not configured' }, { status: 503 });
+  }
+
+  const { data: order, error } = await adminClient
+    .from('orders')
+    .select('*, items:order_items(*), payments(*)')
+    .eq('id', id)
+    .single();
+
+  if (error || !order) {
+    return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+  }
+
+  return NextResponse.json({ success: true, order });
+}
+
+/**
+ * PATCH /api/admin/orders/[id]
+ * Update order fulfilment status, payment status (e.g. COD cash collection),
+ * courier carrier, tracking number, and admin notes.
+ * Protected: requires authenticated user with role === 'admin'.
+ */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdminSession(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   try {
     const { id } = await params;
     const rawBody = await req.json();
@@ -18,17 +63,14 @@ export async function PATCH(
       );
     }
 
-    const { order_status, tracking_carrier, tracking_number, notes } = parsed.data;
+    const { order_status, payment_status, tracking_carrier, tracking_number, notes } = parsed.data;
     const adminClient = getAdminClient();
 
     if (!adminClient) {
-      return NextResponse.json(
-        { success: true, message: 'Status updated (offline preview mode)' },
-        { status: 200 }
-      );
+      return NextResponse.json({ success: false, error: 'Database service is not configured' }, { status: 503 });
     }
 
-    // 1. Fetch current order to check state
+    // 1. Fetch current order to verify state
     const { data: currentOrder, error: fetchErr } = await adminClient
       .from('orders')
       .select('order_status, payment_status')
@@ -45,6 +87,9 @@ export async function PATCH(
 
     if (order_status) {
       updates.order_status = order_status;
+    }
+    if (payment_status) {
+      updates.payment_status = payment_status;
     }
     if (tracking_carrier !== undefined) {
       updates.tracking_carrier = tracking_carrier;
@@ -66,7 +111,7 @@ export async function PATCH(
       .from('orders')
       .update(updates)
       .eq('id', id)
-      .select()
+      .select('*, items:order_items(*)')
       .single();
 
     if (updateErr) {

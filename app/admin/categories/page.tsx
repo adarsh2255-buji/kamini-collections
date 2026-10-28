@@ -1,8 +1,15 @@
 import React from 'react';
 import Image from 'next/image';
 import { getCategories } from '@/services/products';
+import { verifyAdminSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function AdminCategoriesPage() {
+  const auth = await verifyAdminSession();
+  if (!auth.authorized) {
+    redirect('/admin/login');
+  }
+
   const categories = await getCategories();
 
   return (

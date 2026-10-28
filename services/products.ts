@@ -28,13 +28,14 @@ export async function getCategories(): Promise<Category[]> {
       .order('display_order', { ascending: true });
 
     if (error) {
-      return INITIAL_CATEGORIES;
+      console.error('Database query error in getCategories:', error.message);
+      return [];
     }
 
     return (data || []) as Category[];
   } catch (err) {
     console.error('Error fetching categories:', err);
-    return INITIAL_CATEGORIES;
+    return [];
   }
 }
 
@@ -57,14 +58,17 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
       .eq('is_active', true)
       .single();
 
-    if (error || !data) {
-      return INITIAL_CATEGORIES.find((c) => c.slug === slug) || null;
+    if (error) {
+      if (error.code !== 'PGRST116') {
+        console.error('Database query error in getCategoryBySlug:', error.message);
+      }
+      return null;
     }
 
     return data as Category;
   } catch (err) {
     console.error('Error fetching category by slug:', err);
-    return INITIAL_CATEGORIES.find((c) => c.slug === slug) || null;
+    return null;
   }
 }
 
@@ -213,13 +217,14 @@ export async function getProducts(filters: ShopFilters = {}): Promise<{ products
     const { data, count, error } = await query;
 
     if (error) {
-      return { products: INITIAL_PRODUCTS, total: INITIAL_PRODUCTS.length };
+      console.error('Database query error in getProducts:', error.message);
+      return { products: [], total: 0 };
     }
 
     return { products: (data || []) as Product[], total: count != null ? count : (data?.length || 0) };
   } catch (err) {
     console.error('Error fetching products:', err);
-    return { products: INITIAL_PRODUCTS, total: INITIAL_PRODUCTS.length };
+    return { products: [], total: 0 };
   }
 }
 
@@ -250,14 +255,17 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       .eq('is_active', true)
       .single();
 
-    if (error || !data) {
-      return INITIAL_PRODUCTS.find((p) => p.slug === slug) || null;
+    if (error) {
+      if (error.code !== 'PGRST116') {
+        console.error('Database query error in getProductBySlug:', error.message);
+      }
+      return null;
     }
 
     return data as Product;
   } catch (err) {
     console.error('Error fetching product by slug:', err);
-    return INITIAL_PRODUCTS.find((p) => p.slug === slug) || null;
+    return null;
   }
 }
 

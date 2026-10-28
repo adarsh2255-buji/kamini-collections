@@ -10,8 +10,15 @@ import {
 } from 'lucide-react';
 import { getAdminDashboardMetrics } from '@/services/orders';
 import { formatPrice } from '@/lib/pricing';
+import { verifyAdminSession } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function AdminDashboardPage() {
+  const auth = await verifyAdminSession();
+  if (!auth.authorized) {
+    redirect('/admin/login');
+  }
+
   const metrics = await getAdminDashboardMetrics();
 
   return (

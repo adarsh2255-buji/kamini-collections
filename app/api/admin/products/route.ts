@@ -2,8 +2,51 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { productFormSchema } from '@/lib/validation';
 import { rupeesToPaise } from '@/lib/pricing';
+import { verifyAdminSession } from '@/lib/auth';
 
+/**
+ * GET /api/admin/products
+ * Fetch all products (including inactive) for administrative management.
+ * Protected: requires authenticated user with role === 'admin'.
+ */
+export async function GET(req: NextRequest) {
+  const auth = await verifyAdminSession(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
+  const adminClient = getAdminClient();
+  if (!adminClient) {
+    return NextResponse.json(
+      { success: false, error: 'Database service is not configured' },
+      { status: 503 }
+    );
+  }
+
+  const { data, error } = await adminClient
+    .from('products')
+    .select('*, category:categories(*), images:product_images(*)')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error querying admin products:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true, products: data });
+}
+
+/**
+ * POST /api/admin/products
+ * Create a new saree product with validated specs, pricing, and images.
+ * Protected: requires authenticated user with role === 'admin'.
+ */
 export async function POST(req: NextRequest) {
+  const auth = await verifyAdminSession(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   try {
     const rawBody = await req.json();
     const parsed = productFormSchema.safeParse(rawBody);
@@ -20,12 +63,8 @@ export async function POST(req: NextRequest) {
 
     if (!adminClient) {
       return NextResponse.json(
-        {
-          success: true,
-          message: 'Product validated successfully (Note: configure Supabase in .env.local to persist permanently to PostgreSQL).',
-          product: { ...data, id: `prod_${Date.now()}` },
-        },
-        { status: 200 }
+        { success: false, error: 'Database service is not configured' },
+        { status: 503 }
       );
     }
 
@@ -70,13 +109,22 @@ export async function POST(req: NextRequest) {
         is_primary: idx === 0,
       }));
 
-      await adminClient.from('product_images').insert(imagesToInsert);
+      const { error: imgErr } = await adminClient
+        .from('product_images')
+        .insert(imagesToInsert);
+
+      if (imgErr) {
+        console.error('Database image insert error:', imgErr);
+      }
     }
 
-    return NextResponse.json({ success: true, product: newProd }, { status: 201 });
-  } catch (err: unknown) {
-    console.error('Product creation route error:', err);
-    const msg = err instanceof Error ? err.message : 'Failed to create product';
+    return NextResponse.json(
+      { success: true, product: newProd },
+      { status: 201 }
+    );
+  } catch (error: unknown) {
+    console.error('Admin product create API error:', error);
+    const msg = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

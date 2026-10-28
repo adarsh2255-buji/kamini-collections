@@ -247,7 +247,19 @@ export async function processCheckout(payload: CheckoutPayload): Promise<{
         }
       } catch (rzpErr) {
         console.error('Razorpay order creation failed:', rzpErr);
-        // Note: For low-cost testing without active keys, the client will fall back or display test instructions
+        if (adminClient) {
+          await adminClient.rpc('restore_order_inventory', { p_order_id: createdOrder.id });
+          await adminClient
+            .from('orders')
+            .update({
+              order_status: 'cancelled',
+              payment_status: 'failed',
+              notes: 'Cancelled due to payment gateway order initialization failure',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', createdOrder.id);
+          throw new Error('Payment gateway error. Please try again or select Cash on Delivery.');
+        }
       }
     }
   }

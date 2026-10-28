@@ -22,9 +22,7 @@ export default function AdminLoginPage() {
     try {
       const supabase = createClient();
       if (!supabase) {
-        // If Supabase credentials are not configured yet, allow demo access for inspection
-        router.push('/admin');
-        return;
+        throw new Error('Authentication service is not configured. Please check your environment variables.');
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -36,8 +34,21 @@ export default function AdminLoginPage() {
         throw error;
       }
 
-      if (data.session) {
+      if (data.user) {
+        // Confirm user has administrative role
+        const { data: profile, error: profErr } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profErr || !profile || profile.role !== 'admin') {
+          await supabase.auth.signOut();
+          throw new Error('Access denied: Your account does not have administrative privileges.');
+        }
+
         router.push('/admin');
+        router.refresh();
       }
     } catch (err: unknown) {
       console.error('Admin login error:', err);
